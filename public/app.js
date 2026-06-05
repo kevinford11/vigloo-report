@@ -5,7 +5,7 @@ const I18N = {
   zh:{
     brand:'手游日报', brandTag:'VIGLOO · 投放数据', navOverview:'总览', navDetail:'明细',
     autoSync:'每日自动同步', updatedAt:'更新于', pageTitle:'投放总览', dataRange:'数据范围',
-    fDate:'日期', p7:'7日', p14:'14日', pAll:'全部', fCountry:'国家', fDevice:'设备',
+    fDate:'日期', today:'今日', yesterday:'昨日', p7:'7日', p14:'14日', p30:'30日', pAll:'全部', fCountry:'国家', fDevice:'设备',
     fSource:'来源', sBoth:'两者对比', fRoas:'ADJUST 回报口径',
     cMainTitle:'花费 × 回报趋势', cMainSub:'柱 = 花费(左轴) · 线 = ROAS(右轴) · 未成熟回报自动断线',
     cBreakTitle:'花费构成', cBreakSub:'按 国家 / 设备 分段堆叠',
@@ -19,7 +19,7 @@ const I18N = {
   ko:{
     brand:'게임 일일 리포트', brandTag:'VIGLOO · 광고 데이터', navOverview:'개요', navDetail:'상세',
     autoSync:'매일 자동 동기화', updatedAt:'업데이트', pageTitle:'광고 개요', dataRange:'데이터 범위',
-    fDate:'날짜', p7:'7일', p14:'14일', pAll:'전체', fCountry:'국가', fDevice:'기기',
+    fDate:'날짜', today:'오늘', yesterday:'어제', p7:'7일', p14:'14일', p30:'30일', pAll:'전체', fCountry:'국가', fDevice:'기기',
     fSource:'소스', sBoth:'둘 다', fRoas:'ADJUST ROAS 기준',
     cMainTitle:'지출 × ROAS 추이', cMainSub:'막대 = 지출(좌측) · 선 = ROAS(우측) · 미확정 ROAS 자동 끊김',
     cBreakTitle:'지출 구성', cBreakSub:'국가 / 기기별 누적',
@@ -46,7 +46,7 @@ const ROAS_LABEL = {d0_roas:'D0', d3_roas:'D3', d7_roas:'D7'};
 
 /* ============ state ============ */
 let DATA=null;
-const state={from:null,to:null,countries:new Set(),devices:new Set(),source:'adjust',roas:'d0_roas'};
+const state={from:null,to:null,countries:new Set(),devices:new Set(),source:'both',roas:'d0_roas'};
 const charts={};
 
 /* ============ utils ============ */
@@ -69,7 +69,7 @@ const round=(n,p=0)=>n==null?null:(p?Number(n.toFixed(p)):Math.round(n));
 fetch('data.json').then(r=>r.json()).then(d=>{
   DATA=d;
   initLang(); initTheme();
-  buildControls(); applyPreset(7);
+  buildControls(); applyPreset('7');
   initCharts(); applyStaticI18n(); refreshMeta(); render();
   watchTheme();
   setTimeout(()=>$('#loading').classList.add('hide'),150);
@@ -134,9 +134,11 @@ function buildControls(){
   const cc=$('#country-chips'), dc=$('#device-chips');
   DATA.meta.countries.forEach(v=>{state.countries.add(v);cc.appendChild(chip(v,'country',state.countries));});
   DATA.meta.devices.forEach(v=>{state.devices.add(v);dc.appendChild(chip(v,'device',state.devices));});
-  $('#date-from').addEventListener('change',e=>{state.from=e.target.value;markPreset(null);render();});
-  $('#date-to').addEventListener('change',e=>{state.to=e.target.value;markPreset(null);render();});
-  document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>applyPreset(+b.dataset.days,b)));
+  const df=$('#date-from'), dt=$('#date-to');
+  df.min=dt.min=DATA.meta.date_min; df.max=dt.max=DATA.meta.date_max;
+  df.addEventListener('change',e=>{state.from=e.target.value;markPreset(null);render();});
+  dt.addEventListener('change',e=>{state.to=e.target.value;markPreset(null);render();});
+  document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset,b)));
   seg('#source-seg',v=>{state.source=v;render();});
   seg('#roas-seg',v=>{state.roas=v;render();});
   document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>switchPane(tb)));
@@ -157,11 +159,18 @@ function seg(sel,cb){
     b.classList.add('on'); cb(b.dataset.v);
   }));
 }
-function applyPreset(days,btn){
-  const max=DATA.meta.date_max,min=DATA.meta.date_min;
-  state.to=max; state.from = days===0?min:(isoAdd(max,-(days-1))<min?min:isoAdd(max,-(days-1)));
+function applyPreset(key,btn){
+  const min=DATA.meta.date_min, max=DATA.meta.date_max;
+  const clamp=d=>d<min?min:(d>max?max:d);
+  if(key==='today'||key==='yesterday'){
+    const n=new Date();
+    const todayISO=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+    const day=clamp(key==='today'?todayISO:isoAdd(todayISO,-1));
+    state.from=day; state.to=day;
+  } else if(key==='all'){ state.from=min; state.to=max; }
+  else { const num=+key; state.to=max; state.from=clamp(isoAdd(max,-(num-1))); }
   $('#date-from').value=state.from; $('#date-to').value=state.to;
-  markPreset(btn||[...document.querySelectorAll('.preset')].find(b=>+b.dataset.days===days));
+  markPreset(btn||[...document.querySelectorAll('.preset')].find(b=>b.dataset.preset===String(key)));
   if(DATA&&charts.main) render();
 }
 function markPreset(btn){document.querySelectorAll('.preset').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');}

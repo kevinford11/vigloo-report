@@ -81,9 +81,12 @@
           <label class="ctrl-label" data-i18n="fDate">日期</label>
           <div class="date-row">
             <input type="date" id="date-from"><span class="date-sep">→</span><input type="date" id="date-to">
-            <button class="preset" data-days="7" data-i18n="p7">7日</button>
-            <button class="preset" data-days="14" data-i18n="p14">14日</button>
-            <button class="preset" data-days="0" data-i18n="pAll">全部</button>
+            <button class="preset" data-preset="today" data-i18n="today">今日</button>
+            <button class="preset" data-preset="yesterday" data-i18n="yesterday">昨日</button>
+            <button class="preset" data-preset="7" data-i18n="p7">7日</button>
+            <button class="preset" data-preset="14" data-i18n="p14">14日</button>
+            <button class="preset" data-preset="30" data-i18n="p30">30日</button>
+            <button class="preset" data-preset="all" data-i18n="pAll">全部</button>
           </div>
         </div>
         <div class="ctrl">
@@ -97,8 +100,8 @@
         <div class="ctrl">
           <label class="ctrl-label" data-i18n="fSource">来源</label>
           <div class="seg" id="source-seg">
-            <button data-v="adjust" class="on">ADJUST</button>
-            <button data-v="both" data-i18n="sBoth">两者对比</button>
+            <button data-v="both" class="on" data-i18n="sBoth">两者对比</button>
+            <button data-v="adjust">ADJUST</button>
             <button data-v="meta">META</button>
           </div>
         </div>
