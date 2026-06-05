@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手游日报 · Daily Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grain"></div>
+
+<header class="masthead">
+  <div class="mast-left">
+    <div class="eyebrow">VIGLOO · 手游投放</div>
+    <h1>手游日报<span class="title-en"> / Daily Performance</span></h1>
+    <p class="dek">META 与 中国团队 ADJUST 双来源 · 花费与回报(ROAS)趋势</p>
+  </div>
+  <div class="mast-right">
+    <div class="meta-line"><span class="ml-k">数据范围</span><span class="ml-v" id="m-range">—</span></div>
+    <div class="meta-line"><span class="ml-k">更新于</span><span class="ml-v" id="m-updated">—</span></div>
+    <div class="live"><span class="dot"></span>每日自动同步</div>
+  </div>
+</header>
+
+<section class="controls" id="controls">
+  <div class="ctrl">
+    <label class="ctrl-label">日期</label>
+    <div class="date-row">
+      <input type="date" id="date-from"><span class="date-sep">→</span><input type="date" id="date-to">
+      <button class="preset" data-days="7">7日</button>
+      <button class="preset" data-days="14">14日</button>
+      <button class="preset" data-days="0">全部</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label class="ctrl-label">国家</label>
+    <div class="chips" id="country-chips"></div>
+  </div>
+  <div class="ctrl">
+    <label class="ctrl-label">设备</label>
+    <div class="chips" id="device-chips"></div>
+  </div>
+  <div class="ctrl">
+    <label class="ctrl-label">来源</label>
+    <div class="seg" id="source-seg">
+      <button data-v="both" class="on">两者对比</button>
+      <button data-v="adjust">ADJUST</button>
+      <button data-v="meta">META</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label class="ctrl-label">ADJUST 回报口径</label>
+    <div class="seg" id="roas-seg">
+      <button data-v="d0_roas" class="on">D0</button>
+      <button data-v="d3_roas">D3</button>
+      <button data-v="d7_roas">D7</button>
+    </div>
+  </div>
+</section>
+
+<section class="kpis" id="kpis"></section>
+
+<section class="panel main-panel">
+  <div class="panel-head">
+    <h2>花费 × 回报趋势</h2>
+    <p class="panel-sub">柱 = 花费(左轴)· 线 = ROAS(右轴)· 未成熟回报自动断线</p>
+  </div>
+  <div class="chart" id="chart-main"></div>
+</section>
+
+<div class="panel-grid">
+  <section class="panel">
+    <div class="panel-head"><h2>花费构成</h2><p class="panel-sub">按 国家 / 设备 分段堆叠</p></div>
+    <div class="chart" id="chart-breakdown"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>回报对比</h2><p class="panel-sub">所选口径下,各分段 ROAS</p></div>
+    <div class="chart" id="chart-roas"></div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>明细数据</h2><p class="panel-sub" id="table-note">—</p></div>
+  <div class="table-wrap">
+    <table id="detail-table"><thead></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>来源:飞书「手游日报」· 每日自动抓取</span>
+  <span class="foot-dot">·</span>
+  <span>未成熟的 D3/D7 回报以 — 表示,不计入趋势线</span>
+</footer>
+
+<div id="loading" class="loading">读取数据中…</div>
+<script src="app.js"></script>
+</body>
+</html>

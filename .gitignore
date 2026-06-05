@@ -3,3 +3,4 @@ __pycache__/
 .env
 lark_creds.txt
 .DS_Store
+.pytest_cache/
