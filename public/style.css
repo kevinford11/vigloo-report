@@ -135,7 +135,7 @@ input[type=date]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 
 .seg button.on{background:var(--accent);color:#fff}
 
 /* ----- KPIs ----- */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
   box-shadow:var(--shadow-card);position:relative;overflow:hidden;
   opacity:0;transform:translateY(10px);animation:rise .5s cubic-bezier(.2,.7,.2,1) forwards}
@@ -144,6 +144,8 @@ input[type=date]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 
 .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
 .kpi.k-roas::before{background:var(--success)}
 .kpi.k-rev::before{background:var(--warn)}
+.kpi.k-adj::before{background:var(--accent)}
+.kpi.k-meta::before{background:#cb3eff}
 .kpi-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .kpi-val{font-size:32px;font-weight:700;letter-spacing:-.02em;margin:12px 0 8px;font-variant-numeric:tabular-nums}
 .kpi-sub{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}

@@ -118,26 +118,32 @@
       <!-- KPI -->
       <section class="kpis" id="kpis"></section>
 
-      <!-- 主图:回本曲线 -->
-      <div class="cb-card">
-        <div class="cb-card-head">
-          <div>
-            <div class="cb-card-title" data-i18n="cMatTitle">回本曲线 (D0 → D3 → D7)</div>
-            <div class="cb-hint" data-i18n="cMatSub">ROAS 随天数成熟 · 100% = 回本线 · 区分 META / ADJUST</div>
-          </div>
-        </div>
+      <!-- ADJUST 回本曲线 -->
+      <div class="cb-card" id="card-mat-adj">
+        <div class="cb-card-head"><div>
+          <div class="cb-card-title" data-i18n="cMatTitle">ADJUST 回本曲线 (D0 → D3 → D7)</div>
+          <div class="cb-hint" data-i18n="cMatSub">ROAS 随天数成熟 · 100% = 回本线 · 虚线 = 预测(乘子模型)</div>
+        </div></div>
         <div class="chart chart-main" id="chart-mat"></div>
       </div>
 
       <div class="grid-2">
+        <div class="cb-card" id="card-mat-meta">
+          <div class="cb-card-head"><div>
+            <div class="cb-card-title" data-i18n="cMetaTitle">META 回收水平</div>
+            <div class="cb-hint" data-i18n="cMetaSub">META 为单一 ROAS(无 D0/D3/D7 分级),按分段显示</div>
+          </div></div>
+          <div class="chart" id="chart-meta"></div>
+        </div>
         <div class="cb-card">
-          <div class="cb-card-head"><div><div class="cb-card-title" data-i18n="cMainTitle">花费 × 回报趋势</div><div class="cb-hint" data-i18n="cMainSub">柱 = 花费(左轴) · 线 = ROAS(右轴)</div></div></div>
+          <div class="cb-card-head"><div><div class="cb-card-title" data-i18n="cMainTitle">花费 × 每日收支比</div><div class="cb-hint" data-i18n="cMainSub">柱 = 花费(左轴) · 线 = 收支比 ROAS(右轴)</div></div></div>
           <div class="chart" id="chart-spend"></div>
         </div>
-        <div class="cb-card">
-          <div class="cb-card-head"><div><div class="cb-card-title" data-i18n="cBreakTitle">花费构成</div><div class="cb-hint" data-i18n="cBreakSub">按 国家 / 设备 分段堆叠</div></div></div>
-          <div class="chart" id="chart-breakdown"></div>
-        </div>
+      </div>
+
+      <div class="cb-card">
+        <div class="cb-card-head"><div><div class="cb-card-title" data-i18n="cBreakTitle">花费构成</div><div class="cb-hint" data-i18n="cBreakSub">按 国家 / 设备 分段堆叠</div></div></div>
+        <div class="chart" id="chart-breakdown"></div>
       </div>
     </section>
 

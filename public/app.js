@@ -7,10 +7,12 @@ const I18N = {
     autoSync:'每日自动同步', updatedAt:'更新于', pageTitle:'投放总览', dataRange:'数据范围',
     fDate:'日期', today:'今日', yesterday:'昨日', p7:'7日', p14:'14日', p30:'30日', pAll:'全部', fCountry:'国家', fDevice:'设备',
     fSource:'来源', sBoth:'两者对比', fRoas:'ADJUST 回报口径',
-    cMatTitle:'回本曲线 (D0 → D3 → D7)', cMatSub:'ROAS 随天数成熟 · 100% = 回本线 · 虚线 = 预测(乘子模型) · 区分 META / ADJUST',
+    cMatTitle:'ADJUST 回本曲线 (D0 → D3 → D7)', cMatSub:'ROAS 随天数成熟 · 100% = 回本线 · 虚线 = 预测(乘子模型)',
+    cMetaTitle:'META 回本曲线(模拟)', cMetaSub:'META 仅单值(D0);D3/D7 按 ADJUST 增长形态模拟,虚线 · 100% = 回本线',
     cMainTitle:'花费 × 每日收支比', cMainSub:'柱 = 花费(左轴) · 线 = 收支比 ROAS(右轴)',
     cBreakTitle:'花费构成', cBreakSub:'按 国家 / 设备 分段堆叠', cTableTitle:'明细数据',
     breakLine:'回本线 100%', avg:'平均', breakEven:'已回本', notBreakEven:'未回本',
+    spendLabel:'总花费', revLabel:'总回收', ratioLabel:'收支比',
     footSrc:'来源:飞书「手游日报」· 每日自动抓取', footImm:'未成熟的 D3/D7 回报以 — 表示,不计入趋势线',
     kpiTotalSpend:'区间总花费 · ADJUST', kpiRevenue:'区间总回收', kpiRatio:'区间收支比', kpiD7:'最新成熟 D7 回本',
     byMetric:d=>`按 ${d} 口径`, revFromSpend:'回收 / 花费',
@@ -23,10 +25,12 @@ const I18N = {
     autoSync:'매일 자동 동기화', updatedAt:'업데이트', pageTitle:'광고 개요', dataRange:'데이터 범위',
     fDate:'날짜', today:'오늘', yesterday:'어제', p7:'7일', p14:'14일', p30:'30일', pAll:'전체', fCountry:'국가', fDevice:'기기',
     fSource:'소스', sBoth:'둘 다', fRoas:'ADJUST ROAS 기준',
-    cMatTitle:'회수 곡선 (D0 → D3 → D7)', cMatSub:'ROAS 일자별 성숙 · 100% = 손익분기선 · 점선 = 예측(배수모델) · META / ADJUST 구분',
+    cMatTitle:'ADJUST 회수 곡선 (D0 → D3 → D7)', cMatSub:'ROAS 일자별 성숙 · 100% = 손익분기선 · 점선 = 예측(배수모델)',
+    cMetaTitle:'META 회수 곡선 (시뮬레이션)', cMetaSub:'META 단일값(D0); D3/D7 은 ADJUST 성장형태로 시뮬레이션(점선) · 100% = 손익분기',
     cMainTitle:'지출 × 일일 수익비', cMainSub:'막대 = 지출(좌측) · 선 = 수익비 ROAS(우측)',
     cBreakTitle:'지출 구성', cBreakSub:'국가 / 기기별 누적', cTableTitle:'상세 데이터',
     breakLine:'손익분기 100%', avg:'평균', breakEven:'회수 완료', notBreakEven:'미회수',
+    spendLabel:'총 지출', revLabel:'총 회수', ratioLabel:'수익비',
     footSrc:'출처: Feishu 「手游日报」· 매일 자동 수집', footImm:'미확정 D3/D7 은 — 로 표시, 추이선 제외',
     kpiTotalSpend:'기간 총 지출 · ADJUST', kpiRevenue:'기간 총 회수', kpiRatio:'기간 수익비', kpiD7:'최근 확정 D7 회수',
     byMetric:d=>`${d} 기준`, revFromSpend:'회수 / 지출',
@@ -189,6 +193,7 @@ function switchPane(tab){
 /* ============ charts ============ */
 function initCharts(){
   charts.mat=echarts.init($('#chart-mat'));
+  charts.meta=echarts.init($('#chart-meta'));
   charts.spend=echarts.init($('#chart-spend'));
   charts.breakdown=echarts.init($('#chart-breakdown'));
   window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
@@ -220,28 +225,38 @@ function legend(data){return{top:4,right:2,icon:'roundRect',itemWidth:11,itemHei
 const baseGrid={left:8,right:8,top:46,bottom:26,containLabel:true};
 const dShort=v=>v.slice(5);
 
-function render(){ if(!DATA)return; renderKpis(); renderMaturation(); renderSpend(); renderBreakdown(); renderTable(); }
+function render(){
+  if(!DATA)return;
+  const wantAdj=state.source!=='meta', wantMeta=state.source!=='adjust';
+  $('#card-mat-adj').classList.toggle('hidden',!wantAdj);
+  $('#card-mat-meta').classList.toggle('hidden',!wantMeta);
+  renderKpis(); renderMaturation(); renderMetaCurve(); renderSpend(); renderBreakdown(); renderTable();
+  requestAnimationFrame(()=>Object.values(charts).forEach(c=>c.resize()));
+}
 
 // 收入 = Σ(花费 × ROAS);只统计该口径有值的记录
 function revenue(recs,sk,rk){let r=0;for(const x of recs){if(x[sk]!=null&&x[rk]!=null)r+=x[sk]*x[rk];}return r;}
 function spendWith(recs,sk,rk){let s=0;for(const x of recs){if(x[sk]!=null&&x[rk]!=null)s+=x[sk];}return s;}
 const beTag=v=>v==null?'':(v>=1?`<span class="delta up">${t('breakEven')}</span>`:`<span class="delta down">${t('notBreakEven')}</span>`);
 
-function renderKpis(){
+function srcCards(prefix,cls,spendKey,roasKey,withMetric){
   const recs=filtered(),dates=sortedDates(recs);
-  const day=d=>recs.filter(r=>r.date===d);
-  const rl=ROAS_LABEL[state.roas];
-  const totalSpend=sum(recs,'adjust_spend');
-  const rev=revenue(recs,'adjust_spend',state.roas);
-  const ratio=spendWith(recs,'adjust_spend',state.roas)>0?rev/spendWith(recs,'adjust_spend',state.roas):null;
-  let d7d=null; for(let i=dates.length-1;i>=0;i--){ if(wRoas(day(dates[i]),'adjust_spend','d7_roas')!=null){d7d=dates[i];break;} }
-  const d7=d7d?wRoas(day(d7d),'adjust_spend','d7_roas'):null;
-  const cards=[
-    {label:t('kpiTotalSpend'),val:fmtMoney(totalSpend),sub:t('daysTotal')(dates.length)},
-    {cls:'k-rev',label:`${t('kpiRevenue')} · ${rl}`,val:fmtMoney(rev),sub:t('byMetric')(rl)},
-    {cls:'k-roas',label:`${t('kpiRatio')} · ${rl}`,val:fmtRoas(ratio),sub:t('revFromSpend'),tag:beTag(ratio)},
-    {cls:'k-roas',label:t('kpiD7'),val:fmtRoas(d7),sub:d7d?t('maturedAt')(d7d):t('noMatured'),tag:beTag(d7)},
+  const sp=sum(recs,spendKey);
+  const rev=revenue(recs,spendKey,roasKey);
+  const den=spendWith(recs,spendKey,roasKey);
+  const ratio=den>0?rev/den:null;
+  const suf=withMetric?` · ${ROAS_LABEL[roasKey]}`:'';
+  return [
+    {cls,label:`${prefix} · ${t('spendLabel')}`,val:fmtMoney(sp),sub:t('daysTotal')(dates.length)},
+    {cls,label:`${prefix} · ${t('revLabel')}${suf}`,val:fmtMoney(rev),sub:withMetric?t('byMetric')(ROAS_LABEL[roasKey]):t('revFromSpend')},
+    {cls,label:`${prefix} · ${t('ratioLabel')}${suf}`,val:fmtRoas(ratio),sub:t('revFromSpend'),tag:beTag(ratio)},
   ];
+}
+function renderKpis(){
+  const wantAdj=state.source!=='meta', wantMeta=state.source!=='adjust';
+  let cards=[];
+  if(wantAdj) cards=cards.concat(srcCards('ADJUST','k-adj','adjust_spend',state.roas,true));
+  if(wantMeta) cards=cards.concat(srcCards('META','k-meta','meta_spend','meta_roas',false));
   $('#kpis').innerHTML=cards.map(c=>`<div class="kpi ${c.cls||''}"><div class="kpi-label">${c.label}</div>
     <div class="kpi-val">${c.val}</div><div class="kpi-sub">${c.sub}${c.delta||''}${c.tag||''}</div></div>`).join('');
 }
@@ -313,11 +328,10 @@ function renderMaturation(){
   const recs=filtered(),dates=sortedDates(recs),ax=axisStyle();
   const day=d=>recs.filter(r=>r.date===d);
   const xCats=['D0','D3','D7'];
-  const wantAdj=state.source!=='meta', wantMeta=state.source!=='adjust';
   const m=maturationMultipliers();
   const series=[],ld=[];
 
-  if(wantAdj){
+  {
     const cohorts = dates.length>12 ? [] : dates;   // 天数过多时只画平均,避免杂乱
     cohorts.forEach((d,i)=>{
       const col=lerp('#b9ccff','#16357f', dates.length<=1?1:i/(dates.length-1));
@@ -351,24 +365,54 @@ function renderMaturation(){
         lineStyle:{width:4,color:SERIES.adjSpend,type:'dashed'},itemStyle:{color:SERIES.adjSpend},z:6});
     }
   }
-  if(wantMeta){
-    const mv=round(wRoas(recs,'meta_spend','meta_roas'),3), nmM='META ROAS';
-    series.push({name:nmM,type:'line',data:[mv,mv,mv],symbol:'none',
-      lineStyle:{width:2.4,color:SERIES.metaRoas,type:'dashed'},itemStyle:{color:SERIES.metaRoas},z:4});
-    ld.push(nmM);
-  }
-  if(series.length){
-    series[0]=Object.assign({},series[0],{markLine:{silent:true,symbol:'none',
-      lineStyle:{color:'#ef4444',type:'dashed',width:1.6},
-      label:{formatter:t('breakLine'),color:'#ef4444',position:'insideEndTop',fontSize:11},
-      data:[{yAxis:1}]}});
-  }
-  charts.mat.setOption({
+  attachBreakLine(series);
+  charts.mat.setOption(matOption(xCats,ax,ld,series),true);
+}
+
+/* META 回本曲线(模拟):D0 实测,D3/D7 按 ADJUST 增长形态(乘子)模拟,虚线。 */
+function renderMetaCurve(){
+  const recs=filtered(),ax=axisStyle();
+  const m=maturationMultipliers();
+  const segs=[...new Set(recs.map(rawSeg))].sort();
+  const xCats=['D0','D3','D7'];
+  const series=[],ld=[];
+  segs.forEach((sg,i)=>{
+    const col=SEG_COLORS[i%SEG_COLORS.length];
+    const d0=round(wRoas(recs.filter(r=>rawSeg(r)===sg),'meta_spend','meta_roas'),3);
+    const nm=segLabelFromKey(sg);
+    series.push({name:nm,type:'line',data:[d0,null,null],connectNulls:false,symbol:'circle',symbolSize:7,
+      lineStyle:{width:2,color:col},itemStyle:{color:col}});
+    ld.push(nm);
+    if(d0!=null&&m.r3!=null&&m.r7!=null){
+      series.push({name:nm,type:'line',data:[d0,round(d0*m.r3,3),round(d0*m.r7,3)],connectNulls:true,
+        symbol:'emptyCircle',symbolSize:7,lineStyle:{width:2,color:col,type:'dashed'},itemStyle:{color:col},z:3});
+    }
+  });
+  // META 平均(模拟)
+  const mv=round(wRoas(recs,'meta_spend','meta_roas'),3), nmA=`META ${t('avg')}`;
+  series.push({name:nmA,type:'line',data:[mv,null,null],symbol:'circle',symbolSize:8,
+    lineStyle:{width:4,color:SERIES.metaRoas},itemStyle:{color:SERIES.metaRoas},z:6});
+  if(mv!=null&&m.r3!=null&&m.r7!=null)
+    series.push({name:nmA,type:'line',data:[mv,round(mv*m.r3,3),round(mv*m.r7,3)],connectNulls:true,
+      symbol:'emptyCircle',symbolSize:8,lineStyle:{width:4,color:SERIES.metaRoas,type:'dashed'},itemStyle:{color:SERIES.metaRoas},z:6});
+  ld.push(nmA);
+  attachBreakLine(series);
+  charts.meta.setOption(matOption(xCats,ax,ld,series),true);
+}
+function attachBreakLine(series){
+  if(!series.length)return;
+  series[0]=Object.assign({},series[0],{markLine:{silent:true,symbol:'none',
+    lineStyle:{color:'#ef4444',type:'dashed',width:1.6},
+    label:{formatter:t('breakLine'),color:'#ef4444',position:'insideEndTop',fontSize:11},
+    data:[{yAxis:1}]}});
+}
+function matOption(xCats,ax,ld,series){
+  return {
     tooltip:tip('roas'), legend:legend(ld), grid:{left:8,right:16,top:46,bottom:26,containLabel:true},
     xAxis:{type:'category',boundaryGap:false,data:xCats,axisLine:ax.axisLine,axisTick:ax.axisTick,axisLabel:{color:ax.muted,fontSize:12}},
     yAxis:{type:'value',name:'ROAS',nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:ax.splitLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>(v*100).toFixed(0)+'%'}},
     series,
-  },true);
+  };
 }
 
 function renderTable(){
