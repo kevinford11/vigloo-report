@@ -86,7 +86,6 @@ fetch('data.json').then(r=>r.json()).then(d=>{
 }).catch(e=>{$('#loading').textContent='加载失败 / Load failed: '+e;});
 
 function refreshMeta(){
-  $('#m-range').textContent=`${DATA.meta.date_min} → ${DATA.meta.date_max}`;
   $('#m-updated').textContent=new Date(DATA.meta.updated).toLocaleString(I18N[LANG].locale,{hour12:false});
 }
 
@@ -229,6 +228,7 @@ const dShort=v=>v.slice(5);
 
 function render(){
   if(!DATA)return;
+  $('#m-range').textContent=`${state.from} → ${state.to}`;   // 顶部区间跟随选择
   const wantAdj=state.source!=='meta', wantMeta=state.source!=='adjust';
   $('#card-mat-adj').classList.toggle('hidden',!wantAdj);
   $('#card-mat-meta').classList.toggle('hidden',!wantMeta);
@@ -347,7 +347,7 @@ function renderMaturation(){
       const d0=round(dRoas(d,'adjust_spend','d0_roas'),3);
       const d3=round(dRoas(d,'adjust_spend','d3_roas'),3);
       const d7=round(dRoas(d,'adjust_spend','d7_roas'),3);
-      const actual=[d0,d3,d7], nm=`ADJUST ${d.slice(5)}`;
+      const actual=[d0,d3,d7], nm=d.slice(5);
       series.push({name:nm,type:'line',data:actual,connectNulls:false,smooth:.3,symbol:'circle',symbolSize:6,
         lineStyle:{width:2,color:col},itemStyle:{color:col}});
       ld.push(nm);
@@ -361,7 +361,7 @@ function renderMaturation(){
       }
     });
     const a0=round(rangeRoas('adjust_spend','d0_roas'),3),a3=round(rangeRoas('adjust_spend','d3_roas'),3),a7=round(rangeRoas('adjust_spend','d7_roas'),3);
-    const nmA=`ADJUST ${t('avg')}`;
+    const nmA=t('avg');
     series.push({name:nmA,type:'line',data:[a0,a3,a7],connectNulls:false,smooth:.3,symbol:'circle',symbolSize:8,
       lineStyle:{width:4,color:avgCol},itemStyle:{color:avgCol},z:6});
     ld.push(nmA);
