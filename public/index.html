@@ -9,6 +9,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/zh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ko.js"></script>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -80,7 +84,7 @@
         <div class="ctrl">
           <label class="ctrl-label" data-i18n="fDate">日期</label>
           <div class="date-row">
-            <input type="date" id="date-from"><span class="date-sep">→</span><input type="date" id="date-to">
+            <input type="text" id="date-range" class="date-range-input" readonly placeholder="选择日期范围">
             <button class="preset" data-preset="today" data-i18n="today">今日</button>
             <button class="preset" data-preset="yesterday" data-i18n="yesterday">昨日</button>
             <button class="preset" data-preset="7" data-i18n="p7">7日</button>

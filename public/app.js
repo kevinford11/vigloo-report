@@ -58,6 +58,8 @@ const ROAS_LABEL = {d0_roas:'D0', d3_roas:'D3', d7_roas:'D7'};
 let DATA=null;
 const state={from:null,to:null,countries:new Set(),devices:new Set(),source:'both',roas:'d0_roas'};
 const charts={};
+let fpRange=null;
+const fmtLocal=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
 /* ============ utils ============ */
 const $=s=>document.querySelector(s);
@@ -110,7 +112,7 @@ function setLang(l){
   // rebuild chips labels
   document.querySelectorAll('#country-chips .chip').forEach(c=>c.textContent=tv('country',c.dataset.val));
   document.querySelectorAll('#device-chips .chip').forEach(c=>c.textContent=tv('device',c.dataset.val));
-  applyStaticI18n(); refreshMeta(); render();
+  initRangePicker(); applyStaticI18n(); refreshMeta(); render();
 }
 function applyStaticI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -143,10 +145,7 @@ function buildControls(){
   const cc=$('#country-chips'), dc=$('#device-chips');
   DATA.meta.countries.forEach(v=>{state.countries.add(v);cc.appendChild(chip(v,'country',state.countries));});
   DATA.meta.devices.forEach(v=>{state.devices.add(v);dc.appendChild(chip(v,'device',state.devices));});
-  const df=$('#date-from'), dt=$('#date-to');
-  df.min=dt.min=DATA.meta.date_min; df.max=dt.max=DATA.meta.date_max;
-  df.addEventListener('change',e=>{state.from=e.target.value;markPreset(null);autoRoas();render();});
-  dt.addEventListener('change',e=>{state.to=e.target.value;markPreset(null);autoRoas();render();});
+  initRangePicker();
   document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset,b)));
   seg('#source-seg',v=>{state.source=v;render();});
   seg('#roas-seg',v=>{state.roas=v;render();});
@@ -178,12 +177,29 @@ function applyPreset(key,btn){
     state.from=day; state.to=day;
   } else if(key==='all'){ state.from=min; state.to=max; }
   else { const num=+key; state.to=max; state.from=clamp(isoAdd(max,-(num-1))); }
-  $('#date-from').value=state.from; $('#date-to').value=state.to;
+  if(fpRange) fpRange.setDate([state.from,state.to],false);   // false=不触发 onClose,避免回环
   markPreset(btn||[...document.querySelectorAll('.preset')].find(b=>b.dataset.preset===String(key)));
   autoRoas();
   if(DATA&&charts.mat) render();
 }
 function markPreset(btn){document.querySelectorAll('.preset').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');}
+// 单弹层区间日历:点开始→点结束即应用,免去两个输入框各点一次
+function initRangePicker(){
+  if(fpRange){fpRange.destroy();fpRange=null;}
+  $('#date-range').placeholder = LANG==='ko'?'날짜 범위 선택':'选择日期范围';
+  const loc = LANG==='ko' ? (flatpickr.l10ns.ko||'default') : (flatpickr.l10ns.zh||'default');
+  fpRange = flatpickr('#date-range', {
+    mode:'range', dateFormat:'Y-m-d', rangeSeparator:'  →  ', locale:loc,
+    minDate:DATA.meta.date_min, maxDate:DATA.meta.date_max,
+    defaultDate:(state.from&&state.to)?[state.from,state.to]:null,
+    onClose:sel=>{
+      if(sel.length<2){ if(state.from&&state.to)fpRange.setDate([state.from,state.to],false); return; }  // 没选完整区间→回滚显示
+      const a=fmtLocal(sel[0]), b=fmtLocal(sel[1]);
+      state.from=a<=b?a:b; state.to=a<=b?b:a;
+      markPreset(null); autoRoas(); render();
+    },
+  });
+}
 // 所选区间天数自动决定回报口径:≥7天→D7,3~6天→D3,<3天→D0
 function daySpan(){ if(!state.from||!state.to)return 0; return Math.round((Date.parse(state.to+'T00:00:00Z')-Date.parse(state.from+'T00:00:00Z'))/864e5)+1; }
 function autoRoas(){
