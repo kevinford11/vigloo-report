@@ -145,8 +145,8 @@ function buildControls(){
   DATA.meta.devices.forEach(v=>{state.devices.add(v);dc.appendChild(chip(v,'device',state.devices));});
   const df=$('#date-from'), dt=$('#date-to');
   df.min=dt.min=DATA.meta.date_min; df.max=dt.max=DATA.meta.date_max;
-  df.addEventListener('change',e=>{state.from=e.target.value;markPreset(null);render();});
-  dt.addEventListener('change',e=>{state.to=e.target.value;markPreset(null);render();});
+  df.addEventListener('change',e=>{state.from=e.target.value;markPreset(null);autoRoas();render();});
+  dt.addEventListener('change',e=>{state.to=e.target.value;markPreset(null);autoRoas();render();});
   document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset,b)));
   seg('#source-seg',v=>{state.source=v;render();});
   seg('#roas-seg',v=>{state.roas=v;render();});
@@ -180,9 +180,17 @@ function applyPreset(key,btn){
   else { const num=+key; state.to=max; state.from=clamp(isoAdd(max,-(num-1))); }
   $('#date-from').value=state.from; $('#date-to').value=state.to;
   markPreset(btn||[...document.querySelectorAll('.preset')].find(b=>b.dataset.preset===String(key)));
+  autoRoas();
   if(DATA&&charts.mat) render();
 }
 function markPreset(btn){document.querySelectorAll('.preset').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');}
+// 所选区间天数自动决定回报口径:≥7天→D7,3~6天→D3,<3天→D0
+function daySpan(){ if(!state.from||!state.to)return 0; return Math.round((Date.parse(state.to+'T00:00:00Z')-Date.parse(state.from+'T00:00:00Z'))/864e5)+1; }
+function autoRoas(){
+  const n=daySpan();
+  state.roas = n>=7?'d7_roas' : n>=3?'d3_roas' : 'd0_roas';
+  document.querySelectorAll('#roas-seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.roas));
+}
 function switchPane(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   tab.classList.add('active');
