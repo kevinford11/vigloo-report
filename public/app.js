@@ -55,7 +55,7 @@ const rawSeg=r=>`${r.country}__${r.device}`;
 const segLabel=r=>`${tv('country',r.country)} · ${tv('device',r.device)}`;
 const isoAdd=(iso,d)=>{const x=new Date(iso+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+d);return x.toISOString().slice(0,10);};
 const fmtMoney=n=>n==null?'—':'$'+Math.round(n).toLocaleString('en-US');
-const fmtRoas=n=>n==null?'—':n.toFixed(2)+'×';
+const fmtRoas=n=>n==null?'—':(n*100).toFixed(2)+'%';
 const cssVar=n=>getComputedStyle(document.body).getPropertyValue(n).trim();
 
 function passFilter(r){return r.date>=state.from&&r.date<=state.to&&state.countries.has(r.country)&&state.devices.has(r.device);}
@@ -186,9 +186,19 @@ function axisStyle(){
     axisLine:{lineStyle:{color:line}}, axisTick:{show:false},
     axisLabel:{color:muted,fontSize:11}, splitLine:{lineStyle:{color:split}}};
 }
-function tip(){const surf=cssVar('--panel'),line=cssVar('--line-strong'),text=cssVar('--text');
+function tip(kind){const surf=cssVar('--panel'),line=cssVar('--line-strong'),text=cssVar('--text');
   return{trigger:'axis',backgroundColor:surf,borderColor:line,borderWidth:1,padding:[10,13],
-    textStyle:{color:text,fontSize:12},axisPointer:{type:'shadow',shadowStyle:{color:'rgba(120,120,140,.08)'}}};}
+    textStyle:{color:text,fontSize:12},axisPointer:{type:'shadow',shadowStyle:{color:'rgba(120,120,140,.08)'}},
+    formatter:params=>{
+      const head=params[0].axisValueLabel||params[0].axisValue;
+      let s=`<div style="font-weight:600;margin-bottom:4px">${head}</div>`;
+      params.forEach(p=>{
+        const isRoas = kind==='roas' || (kind==='mixed' && /ROAS/.test(p.seriesName));
+        const v=(p.value==null)?'—':(isRoas?(p.value*100).toFixed(2)+'%':'$'+Math.round(p.value).toLocaleString('en-US'));
+        s+=`<div style="display:flex;justify-content:space-between;gap:18px"><span>${p.marker} ${p.seriesName}</span><b>${v}</b></div>`;
+      });
+      return s;
+    }};}
 function legend(data){return{top:4,right:2,icon:'roundRect',itemWidth:11,itemHeight:11,
   textStyle:{color:cssVar('--muted'),fontSize:11},data};}
 const baseGrid={left:8,right:8,top:46,bottom:26,containLabel:true};
@@ -214,7 +224,7 @@ function renderKpis(){
     <div class="kpi-val">${c.val}</div><div class="kpi-sub">${c.sub}${c.delta||''}</div></div>`).join('');
 }
 function pctDelta(c,p){if(c==null||p==null||p===0)return'';const x=(c-p)/p*100,u=x>=0;return`<span class="delta ${u?'up':'down'}">${u?'▲':'▼'} ${Math.abs(x).toFixed(1)}%</span>`;}
-function ptsDelta(c,p){if(c==null||p==null)return'';const x=c-p,u=x>=0;return`<span class="delta ${u?'up':'down'}">${u?'▲':'▼'} ${Math.abs(x).toFixed(2)}×</span>`;}
+function ptsDelta(c,p){if(c==null||p==null)return'';const x=c-p,u=x>=0;return`<span class="delta ${u?'up':'down'}">${u?'▲':'▼'} ${(Math.abs(x)*100).toFixed(2)}pp</span>`;}
 
 function renderMain(){
   const recs=filtered(),dates=sortedDates(recs),day=d=>recs.filter(r=>r.date===d);
@@ -234,11 +244,11 @@ function renderMain(){
     ld.push(n1,n2);
   }
   charts.main.setOption({
-    tooltip:tip(), legend:legend(ld), grid:baseGrid,
+    tooltip:tip('mixed'), legend:legend(ld), grid:baseGrid,
     xAxis:{type:'category',data:dates,axisLine:ax.axisLine,axisTick:ax.axisTick,splitLine:{show:false},axisLabel:{color:ax.muted,fontSize:11,formatter:dShort}},
     yAxis:[
       {type:'value',name:t('spend'),nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>'$'+(v>=1000?(v/1000)+'k':v)},splitLine:ax.splitLine},
-      {type:'value',name:'ROAS',nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:{show:false},axisLabel:{color:ax.muted,fontSize:11,formatter:v=>v+'×'}},
+      {type:'value',name:'ROAS',nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:{show:false},axisLabel:{color:ax.muted,fontSize:11,formatter:v=>(v*100).toFixed(0)+'%'}},
     ],
     series,
   },true);
@@ -253,7 +263,7 @@ function renderBreakdown(){
     data:dates.map(d=>round(sum(recs.filter(r=>r.date===d&&rawSeg(r)===sg),'adjust_spend'))),
     itemStyle:{color:SEG_COLORS[i%SEG_COLORS.length]},barMaxWidth:30}));
   charts.breakdown.setOption({
-    tooltip:tip(), legend:legend(series.map(s=>s.name)), grid:baseGrid,
+    tooltip:tip('money'), legend:legend(series.map(s=>s.name)), grid:baseGrid,
     xAxis:{type:'category',data:dates,axisLine:ax.axisLine,axisTick:ax.axisTick,axisLabel:{color:ax.muted,fontSize:11,formatter:dShort}},
     yAxis:{type:'value',axisLine:ax.axisLine,splitLine:ax.splitLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>'$'+(v>=1000?(v/1000)+'k':v)}},
     series,
@@ -266,9 +276,9 @@ function renderRoas(){
     data:dates.map(d=>round(wRoas(recs.filter(r=>r.date===d&&rawSeg(r)===sg),'adjust_spend',state.roas),3)),
     lineStyle:{width:2.4,color:SEG_COLORS[i%SEG_COLORS.length]},itemStyle:{color:SEG_COLORS[i%SEG_COLORS.length]}}));
   charts.roas.setOption({
-    tooltip:tip(), legend:legend(series.map(s=>s.name)), grid:baseGrid,
+    tooltip:tip('roas'), legend:legend(series.map(s=>s.name)), grid:baseGrid,
     xAxis:{type:'category',data:dates,axisLine:ax.axisLine,axisTick:ax.axisTick,axisLabel:{color:ax.muted,fontSize:11,formatter:dShort}},
-    yAxis:{type:'value',name:`ADJUST ${rl}`,nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:ax.splitLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>v+'×'}},
+    yAxis:{type:'value',name:`ADJUST ${rl}`,nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:ax.splitLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>(v*100).toFixed(0)+'%'}},
     series,
   },true);
 }
