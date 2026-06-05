@@ -7,11 +7,13 @@ const I18N = {
     autoSync:'每日自动同步', updatedAt:'更新于', pageTitle:'投放总览', dataRange:'数据范围',
     fDate:'日期', today:'今日', yesterday:'昨日', p7:'7日', p14:'14日', p30:'30日', pAll:'全部', fCountry:'国家', fDevice:'设备',
     fSource:'来源', sBoth:'两者对比', fRoas:'ADJUST 回报口径',
-    cMainTitle:'花费 × 回报趋势', cMainSub:'柱 = 花费(左轴) · 线 = ROAS(右轴) · 未成熟回报自动断线',
-    cBreakTitle:'花费构成', cBreakSub:'按 国家 / 设备 分段堆叠',
-    cRoasTitle:'回报对比', cRoasSub:'所选口径下,各分段 ROAS', cTableTitle:'明细数据',
+    cMatTitle:'回本曲线 (D0 → D3 → D7)', cMatSub:'ROAS 随天数成熟 · 100% = 回本线 · 虚线 = 预测(乘子模型) · 区分 META / ADJUST',
+    cMainTitle:'花费 × 每日收支比', cMainSub:'柱 = 花费(左轴) · 线 = 收支比 ROAS(右轴)',
+    cBreakTitle:'花费构成', cBreakSub:'按 国家 / 设备 分段堆叠', cTableTitle:'明细数据',
+    breakLine:'回本线 100%', avg:'平均', breakEven:'已回本', notBreakEven:'未回本',
     footSrc:'来源:飞书「手游日报」· 每日自动抓取', footImm:'未成熟的 D3/D7 回报以 — 表示,不计入趋势线',
-    kpiTotalSpend:'区间总花费 · ADJUST', kpiDaySpend:'最新一天花费', kpiD0:'最新 D0 ROAS', kpiD7:'最新成熟 D7 ROAS',
+    kpiTotalSpend:'区间总花费 · ADJUST', kpiRevenue:'区间总回收', kpiRatio:'区间收支比', kpiD7:'最新成熟 D7 回本',
+    byMetric:d=>`按 ${d} 口径`, revFromSpend:'回收 / 花费',
     daysTotal:n=>`${n} 天合计`, maturedAt:d=>`成熟于 ${d}`, noMatured:'暂无成熟数据',
     spend:'花费', tDate:'日期', tCountry:'国家', tDevice:'设备',
     tableNote:(n,a,b)=>`${n} 行 · ${a} → ${b}`, locale:'zh-CN',
@@ -21,11 +23,13 @@ const I18N = {
     autoSync:'매일 자동 동기화', updatedAt:'업데이트', pageTitle:'광고 개요', dataRange:'데이터 범위',
     fDate:'날짜', today:'오늘', yesterday:'어제', p7:'7일', p14:'14일', p30:'30일', pAll:'전체', fCountry:'국가', fDevice:'기기',
     fSource:'소스', sBoth:'둘 다', fRoas:'ADJUST ROAS 기준',
-    cMainTitle:'지출 × ROAS 추이', cMainSub:'막대 = 지출(좌측) · 선 = ROAS(우측) · 미확정 ROAS 자동 끊김',
-    cBreakTitle:'지출 구성', cBreakSub:'국가 / 기기별 누적',
-    cRoasTitle:'ROAS 비교', cRoasSub:'선택 기준의 분기별 ROAS', cTableTitle:'상세 데이터',
+    cMatTitle:'회수 곡선 (D0 → D3 → D7)', cMatSub:'ROAS 일자별 성숙 · 100% = 손익분기선 · 점선 = 예측(배수모델) · META / ADJUST 구분',
+    cMainTitle:'지출 × 일일 수익비', cMainSub:'막대 = 지출(좌측) · 선 = 수익비 ROAS(우측)',
+    cBreakTitle:'지출 구성', cBreakSub:'국가 / 기기별 누적', cTableTitle:'상세 데이터',
+    breakLine:'손익분기 100%', avg:'평균', breakEven:'회수 완료', notBreakEven:'미회수',
     footSrc:'출처: Feishu 「手游日报」· 매일 자동 수집', footImm:'미확정 D3/D7 은 — 로 표시, 추이선 제외',
-    kpiTotalSpend:'기간 총 지출 · ADJUST', kpiDaySpend:'최근일 지출', kpiD0:'최근 D0 ROAS', kpiD7:'최근 확정 D7 ROAS',
+    kpiTotalSpend:'기간 총 지출 · ADJUST', kpiRevenue:'기간 총 회수', kpiRatio:'기간 수익비', kpiD7:'최근 확정 D7 회수',
+    byMetric:d=>`${d} 기준`, revFromSpend:'회수 / 지출',
     daysTotal:n=>`${n}일 합계`, maturedAt:d=>`확정일 ${d}`, noMatured:'확정 데이터 없음',
     spend:'지출', tDate:'날짜', tCountry:'국가', tDevice:'기기',
     tableNote:(n,a,b)=>`${n}행 · ${a} → ${b}`, locale:'ko-KR',
@@ -171,7 +175,7 @@ function applyPreset(key,btn){
   else { const num=+key; state.to=max; state.from=clamp(isoAdd(max,-(num-1))); }
   $('#date-from').value=state.from; $('#date-to').value=state.to;
   markPreset(btn||[...document.querySelectorAll('.preset')].find(b=>b.dataset.preset===String(key)));
-  if(DATA&&charts.main) render();
+  if(DATA&&charts.mat) render();
 }
 function markPreset(btn){document.querySelectorAll('.preset').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');}
 function switchPane(tab){
@@ -184,9 +188,9 @@ function switchPane(tab){
 
 /* ============ charts ============ */
 function initCharts(){
-  charts.main=echarts.init($('#chart-main'));
+  charts.mat=echarts.init($('#chart-mat'));
+  charts.spend=echarts.init($('#chart-spend'));
   charts.breakdown=echarts.init($('#chart-breakdown'));
-  charts.roas=echarts.init($('#chart-roas'));
   window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
 }
 function axisStyle(){
@@ -201,9 +205,12 @@ function tip(kind){const surf=cssVar('--panel'),line=cssVar('--line-strong'),tex
     formatter:params=>{
       const head=params[0].axisValueLabel||params[0].axisValue;
       let s=`<div style="font-weight:600;margin-bottom:4px">${head}</div>`;
+      const seen=new Set();
       params.forEach(p=>{
+        if(p.value==null) return;                 // 跳过空值,避免一条线在缺口处显示 —
+        const key=p.seriesName+'@'+p.dataIndex; if(seen.has(key))return; seen.add(key);
         const isRoas = kind==='roas' || (kind==='mixed' && /ROAS/.test(p.seriesName));
-        const v=(p.value==null)?'—':(isRoas?(p.value*100).toFixed(2)+'%':'$'+Math.round(p.value).toLocaleString('en-US'));
+        const v=isRoas?(p.value*100).toFixed(2)+'%':'$'+Math.round(p.value).toLocaleString('en-US');
         s+=`<div style="display:flex;justify-content:space-between;gap:18px"><span>${p.marker} ${p.seriesName}</span><b>${v}</b></div>`;
       });
       return s;
@@ -213,29 +220,35 @@ function legend(data){return{top:4,right:2,icon:'roundRect',itemWidth:11,itemHei
 const baseGrid={left:8,right:8,top:46,bottom:26,containLabel:true};
 const dShort=v=>v.slice(5);
 
-function render(){ if(!DATA)return; renderKpis(); renderMain(); renderBreakdown(); renderRoas(); renderTable(); }
+function render(){ if(!DATA)return; renderKpis(); renderMaturation(); renderSpend(); renderBreakdown(); renderTable(); }
+
+// 收入 = Σ(花费 × ROAS);只统计该口径有值的记录
+function revenue(recs,sk,rk){let r=0;for(const x of recs){if(x[sk]!=null&&x[rk]!=null)r+=x[sk]*x[rk];}return r;}
+function spendWith(recs,sk,rk){let s=0;for(const x of recs){if(x[sk]!=null&&x[rk]!=null)s+=x[sk];}return s;}
+const beTag=v=>v==null?'':(v>=1?`<span class="delta up">${t('breakEven')}</span>`:`<span class="delta down">${t('notBreakEven')}</span>`);
 
 function renderKpis(){
   const recs=filtered(),dates=sortedDates(recs);
-  const last=dates[dates.length-1],prev=dates[dates.length-2];
   const day=d=>recs.filter(r=>r.date===d);
-  const sLast=last?sum(day(last),'adjust_spend'):null, sPrev=prev?sum(day(prev),'adjust_spend'):null;
-  const d0L=last?wRoas(day(last),'adjust_spend','d0_roas'):null, d0P=prev?wRoas(day(prev),'adjust_spend','d0_roas'):null;
+  const rl=ROAS_LABEL[state.roas];
+  const totalSpend=sum(recs,'adjust_spend');
+  const rev=revenue(recs,'adjust_spend',state.roas);
+  const ratio=spendWith(recs,'adjust_spend',state.roas)>0?rev/spendWith(recs,'adjust_spend',state.roas):null;
   let d7d=null; for(let i=dates.length-1;i>=0;i--){ if(wRoas(day(dates[i]),'adjust_spend','d7_roas')!=null){d7d=dates[i];break;} }
   const d7=d7d?wRoas(day(d7d),'adjust_spend','d7_roas'):null;
   const cards=[
-    {label:t('kpiTotalSpend'),val:fmtMoney(sum(recs,'adjust_spend')),sub:t('daysTotal')(dates.length)},
-    {label:t('kpiDaySpend'),val:fmtMoney(sLast),sub:last||'—',delta:pctDelta(sLast,sPrev)},
-    {cls:'k-roas',label:t('kpiD0'),val:fmtRoas(d0L),sub:last||'—',delta:ptsDelta(d0L,d0P)},
-    {cls:'k-roas',label:t('kpiD7'),val:fmtRoas(d7),sub:d7d?t('maturedAt')(d7d):t('noMatured')},
+    {label:t('kpiTotalSpend'),val:fmtMoney(totalSpend),sub:t('daysTotal')(dates.length)},
+    {cls:'k-rev',label:`${t('kpiRevenue')} · ${rl}`,val:fmtMoney(rev),sub:t('byMetric')(rl)},
+    {cls:'k-roas',label:`${t('kpiRatio')} · ${rl}`,val:fmtRoas(ratio),sub:t('revFromSpend'),tag:beTag(ratio)},
+    {cls:'k-roas',label:t('kpiD7'),val:fmtRoas(d7),sub:d7d?t('maturedAt')(d7d):t('noMatured'),tag:beTag(d7)},
   ];
   $('#kpis').innerHTML=cards.map(c=>`<div class="kpi ${c.cls||''}"><div class="kpi-label">${c.label}</div>
-    <div class="kpi-val">${c.val}</div><div class="kpi-sub">${c.sub}${c.delta||''}</div></div>`).join('');
+    <div class="kpi-val">${c.val}</div><div class="kpi-sub">${c.sub}${c.delta||''}${c.tag||''}</div></div>`).join('');
 }
 function pctDelta(c,p){if(c==null||p==null||p===0)return'';const x=(c-p)/p*100,u=x>=0;return`<span class="delta ${u?'up':'down'}">${u?'▲':'▼'} ${Math.abs(x).toFixed(1)}%</span>`;}
 function ptsDelta(c,p){if(c==null||p==null)return'';const x=c-p,u=x>=0;return`<span class="delta ${u?'up':'down'}">${u?'▲':'▼'} ${(Math.abs(x)*100).toFixed(2)}pp</span>`;}
 
-function renderMain(){
+function renderSpend(){
   const recs=filtered(),dates=sortedDates(recs),day=d=>recs.filter(r=>r.date===d);
   const ax=axisStyle(), series=[],ld=[];
   const wantMeta=state.source!=='adjust', wantAdj=state.source!=='meta', rl=ROAS_LABEL[state.roas];
@@ -252,7 +265,7 @@ function renderMain(){
     series.push(lineS(n2,dates.map(d=>round(wRoas(day(d),'meta_spend','meta_roas'),3)),SERIES.metaRoas));
     ld.push(n1,n2);
   }
-  charts.main.setOption({
+  charts.spend.setOption({
     tooltip:tip('mixed'), legend:legend(ld), grid:baseGrid,
     xAxis:{type:'category',data:dates,axisLine:ax.axisLine,axisTick:ax.axisTick,splitLine:{show:false},axisLabel:{color:ax.muted,fontSize:11,formatter:dShort}},
     yAxis:[
@@ -278,20 +291,85 @@ function renderBreakdown(){
     series,
   },true);
 }
-function renderRoas(){
-  const recs=filtered(),dates=sortedDates(recs),ax=axisStyle(),rl=ROAS_LABEL[state.roas];
-  const segs=[...new Set(recs.map(rawSeg))].sort();
-  const series=segs.map((sg,i)=>({name:segLabelFromKey(sg),type:'line',connectNulls:false,smooth:.35,symbol:'circle',symbolSize:5,
-    data:dates.map(d=>round(wRoas(recs.filter(r=>r.date===d&&rawSeg(r)===sg),'adjust_spend',state.roas),3)),
-    lineStyle:{width:2.4,color:SEG_COLORS[i%SEG_COLORS.length]},itemStyle:{color:SEG_COLORS[i%SEG_COLORS.length]}}));
-  charts.roas.setOption({
-    tooltip:tip('roas'), legend:legend(series.map(s=>s.name)), grid:baseGrid,
-    xAxis:{type:'category',data:dates,axisLine:ax.axisLine,axisTick:ax.axisTick,axisLabel:{color:ax.muted,fontSize:11,formatter:dShort}},
-    yAxis:{type:'value',name:`ADJUST ${rl}`,nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:ax.splitLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>(v*100).toFixed(0)+'%'}},
+function segLabelFromKey(k){const[c,d]=k.split('__');return `${tv('country',c)} · ${tv('device',d)}`;}
+function lerp(a,b,t_){const pa=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)),pb=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));
+  const c=pa.map((x,i)=>Math.round(x+(pb[i]-x)*t_));return `rgb(${c[0]},${c[1]},${c[2]})`;}
+const median=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};
+
+/* 成熟乘子模型:用历史已成熟 cohort 标定 D3/D0、D7/D0、D7/D3 的中位数比值(随当前国家/设备过滤),
+   把"还没到 D3/D7"的近期天向后预测。中位数对异常日更稳健。 */
+function maturationMultipliers(){
+  const base=DATA.records.filter(r=>state.countries.has(r.country)&&state.devices.has(r.device));
+  const r3=[],r7=[],r73=[];
+  for(const r of base){
+    if(r.d0_roas>0){ if(r.d3_roas!=null)r3.push(r.d3_roas/r.d0_roas); if(r.d7_roas!=null)r7.push(r.d7_roas/r.d0_roas); }
+    if(r.d3_roas>0&&r.d7_roas!=null) r73.push(r.d7_roas/r.d3_roas);
+  }
+  return {r3:median(r3), r7:median(r7), r73:median(r73), n:r7.length};
+}
+
+/* 回本曲线:x = D0/D3/D7,横向 100% 回本线;近期未成熟天用乘子模型预测,虚线延展。 */
+function renderMaturation(){
+  const recs=filtered(),dates=sortedDates(recs),ax=axisStyle();
+  const day=d=>recs.filter(r=>r.date===d);
+  const xCats=['D0','D3','D7'];
+  const wantAdj=state.source!=='meta', wantMeta=state.source!=='adjust';
+  const m=maturationMultipliers();
+  const series=[],ld=[];
+
+  if(wantAdj){
+    const cohorts = dates.length>12 ? [] : dates;   // 天数过多时只画平均,避免杂乱
+    cohorts.forEach((d,i)=>{
+      const col=lerp('#b9ccff','#16357f', dates.length<=1?1:i/(dates.length-1));
+      const d0=round(wRoas(day(d),'adjust_spend','d0_roas'),3);
+      const d3=round(wRoas(day(d),'adjust_spend','d3_roas'),3);
+      const d7=round(wRoas(day(d),'adjust_spend','d7_roas'),3);
+      const actual=[d0,d3,d7], nm=`ADJUST ${d.slice(5)}`;
+      series.push({name:nm,type:'line',data:actual,connectNulls:false,smooth:.3,symbol:'circle',symbolSize:6,
+        lineStyle:{width:2,color:col},itemStyle:{color:col}});
+      ld.push(nm);
+      const pD3=d3!=null?d3:(d0!=null&&m.r3!=null?round(d0*m.r3,3):null);
+      const pD7=d7!=null?d7:(pD3!=null&&m.r73!=null?round(pD3*m.r73,3):(d0!=null&&m.r7!=null?round(d0*m.r7,3):null));
+      const lastIdx=d7!=null?2:d3!=null?1:d0!=null?0:-1;
+      if(lastIdx>=0&&lastIdx<2&&pD7!=null){
+        const pred=[null,null,null]; pred[lastIdx]=actual[lastIdx]; if(d3==null)pred[1]=pD3; pred[2]=pD7;
+        series.push({name:nm,type:'line',data:pred,connectNulls:true,smooth:.3,symbol:'emptyCircle',symbolSize:6,
+          lineStyle:{width:2,color:col,type:'dashed'},itemStyle:{color:col},z:3});  // 同名→图例联动
+      }
+    });
+    const a0=round(wRoas(recs,'adjust_spend','d0_roas'),3),a3=round(wRoas(recs,'adjust_spend','d3_roas'),3),a7=round(wRoas(recs,'adjust_spend','d7_roas'),3);
+    const nmA=`ADJUST ${t('avg')}`;
+    series.push({name:nmA,type:'line',data:[a0,a3,a7],connectNulls:false,smooth:.3,symbol:'circle',symbolSize:8,
+      lineStyle:{width:4,color:SERIES.adjSpend},itemStyle:{color:SERIES.adjSpend},z:6});
+    ld.push(nmA);
+    const pa3=a3!=null?a3:(a0!=null&&m.r3!=null?round(a0*m.r3,3):null);
+    const pa7=a7!=null?a7:(pa3!=null&&m.r73!=null?round(pa3*m.r73,3):(a0!=null&&m.r7!=null?round(a0*m.r7,3):null));
+    const aLast=a7!=null?2:a3!=null?1:a0!=null?0:-1;
+    if(aLast>=0&&aLast<2&&pa7!=null){
+      const pred=[null,null,null]; pred[aLast]=[a0,a3,a7][aLast]; if(a3==null)pred[1]=pa3; pred[2]=pa7;
+      series.push({name:nmA,type:'line',data:pred,connectNulls:true,smooth:.3,symbol:'emptyCircle',symbolSize:8,
+        lineStyle:{width:4,color:SERIES.adjSpend,type:'dashed'},itemStyle:{color:SERIES.adjSpend},z:6});
+    }
+  }
+  if(wantMeta){
+    const mv=round(wRoas(recs,'meta_spend','meta_roas'),3), nmM='META ROAS';
+    series.push({name:nmM,type:'line',data:[mv,mv,mv],symbol:'none',
+      lineStyle:{width:2.4,color:SERIES.metaRoas,type:'dashed'},itemStyle:{color:SERIES.metaRoas},z:4});
+    ld.push(nmM);
+  }
+  if(series.length){
+    series[0]=Object.assign({},series[0],{markLine:{silent:true,symbol:'none',
+      lineStyle:{color:'#ef4444',type:'dashed',width:1.6},
+      label:{formatter:t('breakLine'),color:'#ef4444',position:'insideEndTop',fontSize:11},
+      data:[{yAxis:1}]}});
+  }
+  charts.mat.setOption({
+    tooltip:tip('roas'), legend:legend(ld), grid:{left:8,right:16,top:46,bottom:26,containLabel:true},
+    xAxis:{type:'category',boundaryGap:false,data:xCats,axisLine:ax.axisLine,axisTick:ax.axisTick,axisLabel:{color:ax.muted,fontSize:12}},
+    yAxis:{type:'value',name:'ROAS',nameTextStyle:{color:ax.muted,fontSize:10},axisLine:ax.axisLine,splitLine:ax.splitLine,axisLabel:{color:ax.muted,fontSize:11,formatter:v=>(v*100).toFixed(0)+'%'}},
     series,
   },true);
 }
-function segLabelFromKey(k){const[c,d]=k.split('__');return `${tv('country',c)} · ${tv('device',d)}`;}
 
 function renderTable(){
   const recs=filtered().slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:rawSeg(a).localeCompare(rawSeg(b)));
