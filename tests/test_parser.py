@@ -48,6 +48,16 @@ def test_immature_roas_is_null():
     assert latest and all(r["d7_roas"] is None for r in latest)
 
 
+def test_totals_rows():
+    out = parse_sheet(_values())
+    totals = out["totals"]
+    assert len(totals) == 9                       # 9 天各一行合计
+    t = {x["date"]: x for x in totals}["2026-06-03"]
+    assert round(t["adjust_spend"], 2) == 14369.55
+    assert round(t["d0_roas"], 4) == 0.2923       # 表里 06-03 合计 D0
+    assert round(t["meta_roas"], 4) == 1.3024     # 表里 META 合计 130.24%
+
+
 def test_known_value():
     out = parse_sheet(_values())
     kr = [r for r in out["records"]

@@ -234,17 +234,23 @@ function render(){
   requestAnimationFrame(()=>Object.values(charts).forEach(c=>c.resize()));
 }
 
-// 收入 = Σ(花费 × ROAS);只统计该口径有值的记录
-function revenue(recs,sk,rk){let r=0;for(const x of recs){if(x[sk]!=null&&x[rk]!=null)r+=x[sk]*x[rk];}return r;}
-function spendWith(recs,sk,rk){let s=0;for(const x of recs){if(x[sk]!=null&&x[rk]!=null)s+=x[sk];}return s;}
 const beTag=v=>v==null?'':(v>=1?`<span class="delta up">${t('breakEven')}</span>`:`<span class="delta down">${t('notBreakEven')}</span>`);
 
+/* 聚合口径:全选(不筛选)时用表里「合计行」(对齐原表);一旦按国家/设备筛选则用分段加权。 */
+function isUnfiltered(){ return state.countries.size===DATA.meta.countries.length && state.devices.size===DATA.meta.devices.length; }
+function totalsMap(){ if(!DATA._tmap){DATA._tmap={};(DATA.totals||[]).forEach(t=>{DATA._tmap[t.date]=t;});} return DATA._tmap; }
+function dSpend(date,sk){ if(isUnfiltered()){const t=totalsMap()[date]; if(t&&t[sk]!=null)return t[sk];} return sum(filtered().filter(r=>r.date===date),sk); }
+function dRoas(date,sk,rk){ if(isUnfiltered()){const t=totalsMap()[date]; if(t)return t[rk]==null?null:t[rk];} return wRoas(filtered().filter(r=>r.date===date),sk,rk); }
+function rangeSpend(sk){ let s=0; for(const d of sortedDates(filtered())){const v=dSpend(d,sk); if(v!=null)s+=v;} return s; }
+function rangeRevenue(sk,rk){ let r=0; for(const d of sortedDates(filtered())){const s=dSpend(d,sk),v=dRoas(d,sk,rk); if(s!=null&&v!=null)r+=s*v;} return r; }
+function rangeSpendWith(sk,rk){ let s=0; for(const d of sortedDates(filtered())){const sp=dSpend(d,sk),v=dRoas(d,sk,rk); if(sp!=null&&v!=null)s+=sp;} return s; }
+function rangeRoas(sk,rk){ const den=rangeSpendWith(sk,rk); return den>0?rangeRevenue(sk,rk)/den:null; }
+
 function srcCards(prefix,cls,spendKey,roasKey,withMetric){
-  const recs=filtered(),dates=sortedDates(recs);
-  const sp=sum(recs,spendKey);
-  const rev=revenue(recs,spendKey,roasKey);
-  const den=spendWith(recs,spendKey,roasKey);
-  const ratio=den>0?rev/den:null;
+  const dates=sortedDates(filtered());
+  const sp=rangeSpend(spendKey);
+  const rev=rangeRevenue(spendKey,roasKey);
+  const ratio=rangeRoas(spendKey,roasKey);
   const suf=withMetric?` · ${ROAS_LABEL[roasKey]}`:'';
   return [
     {cls,label:`${prefix} · ${t('spendLabel')}`,val:fmtMoney(sp),sub:t('daysTotal')(dates.length)},
@@ -270,14 +276,14 @@ function renderSpend(){
   const sp=t('spend');
   if(wantAdj){
     const n1=`${sp} · ADJUST`, n2=`ROAS · ADJUST ${rl}`;
-    series.push(barS(n1,dates.map(d=>round(sum(day(d),'adjust_spend'))),SERIES.adjSpend));
-    series.push(lineS(n2,dates.map(d=>round(wRoas(day(d),'adjust_spend',state.roas),3)),SERIES.adjRoas));
+    series.push(barS(n1,dates.map(d=>round(dSpend(d,'adjust_spend'))),SERIES.adjSpend));
+    series.push(lineS(n2,dates.map(d=>round(dRoas(d,'adjust_spend',state.roas),3)),SERIES.adjRoas));
     ld.push(n1,n2);
   }
   if(wantMeta){
     const n1=`${sp} · META`, n2='ROAS · META';
-    series.push(barS(n1,dates.map(d=>round(sum(day(d),'meta_spend'))),SERIES.metaSpend));
-    series.push(lineS(n2,dates.map(d=>round(wRoas(day(d),'meta_spend','meta_roas'),3)),SERIES.metaRoas));
+    series.push(barS(n1,dates.map(d=>round(dSpend(d,'meta_spend'))),SERIES.metaSpend));
+    series.push(lineS(n2,dates.map(d=>round(dRoas(d,'meta_spend','meta_roas'),3)),SERIES.metaRoas));
     ld.push(n1,n2);
   }
   charts.spend.setOption({
@@ -335,9 +341,9 @@ function renderMaturation(){
     const cohorts = dates.length>12 ? [] : dates;   // 天数过多时只画平均,避免杂乱
     cohorts.forEach((d,i)=>{
       const col=lerp('#b9ccff','#16357f', dates.length<=1?1:i/(dates.length-1));
-      const d0=round(wRoas(day(d),'adjust_spend','d0_roas'),3);
-      const d3=round(wRoas(day(d),'adjust_spend','d3_roas'),3);
-      const d7=round(wRoas(day(d),'adjust_spend','d7_roas'),3);
+      const d0=round(dRoas(d,'adjust_spend','d0_roas'),3);
+      const d3=round(dRoas(d,'adjust_spend','d3_roas'),3);
+      const d7=round(dRoas(d,'adjust_spend','d7_roas'),3);
       const actual=[d0,d3,d7], nm=`ADJUST ${d.slice(5)}`;
       series.push({name:nm,type:'line',data:actual,connectNulls:false,smooth:.3,symbol:'circle',symbolSize:6,
         lineStyle:{width:2,color:col},itemStyle:{color:col}});
@@ -351,7 +357,7 @@ function renderMaturation(){
           lineStyle:{width:2,color:col,type:'dashed'},itemStyle:{color:col},z:3});  // 同名→图例联动
       }
     });
-    const a0=round(wRoas(recs,'adjust_spend','d0_roas'),3),a3=round(wRoas(recs,'adjust_spend','d3_roas'),3),a7=round(wRoas(recs,'adjust_spend','d7_roas'),3);
+    const a0=round(rangeRoas('adjust_spend','d0_roas'),3),a3=round(rangeRoas('adjust_spend','d3_roas'),3),a7=round(rangeRoas('adjust_spend','d7_roas'),3);
     const nmA=`ADJUST ${t('avg')}`;
     series.push({name:nmA,type:'line',data:[a0,a3,a7],connectNulls:false,smooth:.3,symbol:'circle',symbolSize:8,
       lineStyle:{width:4,color:SERIES.adjSpend},itemStyle:{color:SERIES.adjSpend},z:6});
@@ -388,8 +394,8 @@ function renderMetaCurve(){
         symbol:'emptyCircle',symbolSize:7,lineStyle:{width:2,color:col,type:'dashed'},itemStyle:{color:col},z:3});
     }
   });
-  // META 平均(模拟)
-  const mv=round(wRoas(recs,'meta_spend','meta_roas'),3), nmA=`META ${t('avg')}`;
+  // META 平均(模拟):不筛选时用合计行(130.24%),筛选时分段加权
+  const mv=round(rangeRoas('meta_spend','meta_roas'),3), nmA=`META ${t('avg')}`;
   series.push({name:nmA,type:'line',data:[mv,null,null],symbol:'circle',symbolSize:8,
     lineStyle:{width:4,color:SERIES.metaRoas},itemStyle:{color:SERIES.metaRoas},z:6});
   if(mv!=null&&m.r3!=null&&m.r7!=null)

@@ -10,7 +10,7 @@
       "ios",
       "安卓"
     ],
-    "updated": "2026-06-05T06:07:46.895103+00:00"
+    "updated": "2026-06-05T06:35:19.103803+00:00"
   },
   "cumulative": {
     "meta_spend": 55824.94,
@@ -20,6 +20,89 @@
     "d3_roas": 0.7668,
     "d7_roas": 0.8062
   },
+  "totals": [
+    {
+      "date": "2026-06-03",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 14369.55,
+      "d0_roas": 0.2923,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-02",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 13472.15,
+      "d0_roas": 0.2709,
+      "d3_roas": 0.4134,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-01",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 12182.26,
+      "d0_roas": 0.3493,
+      "d3_roas": 0.6022,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-05-31",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 10852.44,
+      "d0_roas": 0.5312,
+      "d3_roas": 0.9176,
+      "d7_roas": 0.944
+    },
+    {
+      "date": "2026-05-30",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 6373.65,
+      "d0_roas": 0.6835,
+      "d3_roas": 1.2578,
+      "d7_roas": 1.3605
+    },
+    {
+      "date": "2026-05-29",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 5148.59,
+      "d0_roas": 0.5699,
+      "d3_roas": 1.2426,
+      "d7_roas": 1.4674
+    },
+    {
+      "date": "2026-05-28",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 3518.73,
+      "d0_roas": 0.6062,
+      "d3_roas": 1.2422,
+      "d7_roas": 1.5251
+    },
+    {
+      "date": "2026-05-27",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 2063.73,
+      "d0_roas": 0.8958,
+      "d3_roas": 1.8802,
+      "d7_roas": 2.2404
+    },
+    {
+      "date": "2026-05-26",
+      "meta_spend": 12245.71,
+      "meta_roas": 1.3024,
+      "adjust_spend": 330.16,
+      "d0_roas": 2.4805,
+      "d3_roas": 4.6352,
+      "d7_roas": 6.3835
+    }
+  ],
   "records": [
     {
       "date": "2026-06-03",

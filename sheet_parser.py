@@ -38,6 +38,7 @@ def _metrics(row):
 def parse_sheet(values):
     rows = values[2:]  # 跳过 2 行表头
     records = []
+    totals = []           # 每个日期的「合计行」(权威聚合,口径对齐原表)
     cumulative = {}
     cur_date = None       # 当前日期块的日期字符串(None=累计块)
     cur_country = None    # 向下填充用
@@ -62,7 +63,9 @@ def parse_sheet(values):
         if b == "合计":
             if mode == "cumulative":
                 cumulative = _metrics(row)
-            continue  # 日期合计行跳过(前端自行加总)
+            elif mode == "daily" and cur_date:
+                totals.append({"date": cur_date, **_metrics(row)})
+            continue  # 不进 records(明细),单独存 totals
 
         # 段行:国家向下填充
         if b in COUNTRIES:
@@ -81,4 +84,4 @@ def parse_sheet(values):
         "countries": sorted({r["country"] for r in daily}),
         "devices": sorted({r["device"] for r in daily}),
     }
-    return {"meta": meta, "cumulative": cumulative, "records": daily}
+    return {"meta": meta, "cumulative": cumulative, "totals": totals, "records": daily}
