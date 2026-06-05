@@ -50,6 +50,8 @@ const tv = (kind,val)=>{ const m=VMAP[kind]?.[val]; return m? m[LANG] : val; };
 /* ============ palette (theme-independent brand colors) ============ */
 const SERIES = { adjSpend:'#4578f9', adjRoas:'#f5a524', metaSpend:'#8b93a7', metaRoas:'#cb3eff' };
 const SEG_COLORS = ['#4578f9','#43b430','#f5a524','#cb3eff','#7596ff','#ef4444'];
+// 每个 cohort(日期)一个可区分的色相
+const COHORT_PALETTE = ['#4578f9','#16a34a','#f5a524','#ef4444','#cb3eff','#06b6d4','#e8590c','#7c3aed','#db2777','#0ea5e9','#65a30d','#d97706'];
 const ROAS_LABEL = {d0_roas:'D0', d3_roas:'D3', d7_roas:'D7'};
 
 /* ============ state ============ */
@@ -339,8 +341,9 @@ function renderMaturation(){
 
   {
     const cohorts = dates.length>12 ? [] : dates;   // 天数过多时只画平均,避免杂乱
+    const avgCol=cssVar('--text');
     cohorts.forEach((d,i)=>{
-      const col=lerp('#b9ccff','#16357f', dates.length<=1?1:i/(dates.length-1));
+      const col=COHORT_PALETTE[i%COHORT_PALETTE.length];
       const d0=round(dRoas(d,'adjust_spend','d0_roas'),3);
       const d3=round(dRoas(d,'adjust_spend','d3_roas'),3);
       const d7=round(dRoas(d,'adjust_spend','d7_roas'),3);
@@ -360,7 +363,7 @@ function renderMaturation(){
     const a0=round(rangeRoas('adjust_spend','d0_roas'),3),a3=round(rangeRoas('adjust_spend','d3_roas'),3),a7=round(rangeRoas('adjust_spend','d7_roas'),3);
     const nmA=`ADJUST ${t('avg')}`;
     series.push({name:nmA,type:'line',data:[a0,a3,a7],connectNulls:false,smooth:.3,symbol:'circle',symbolSize:8,
-      lineStyle:{width:4,color:SERIES.adjSpend},itemStyle:{color:SERIES.adjSpend},z:6});
+      lineStyle:{width:4,color:avgCol},itemStyle:{color:avgCol},z:6});
     ld.push(nmA);
     const pa3=a3!=null?a3:(a0!=null&&m.r3!=null?round(a0*m.r3,3):null);
     const pa7=a7!=null?a7:(pa3!=null&&m.r73!=null?round(pa3*m.r73,3):(a0!=null&&m.r7!=null?round(a0*m.r7,3):null));
@@ -368,7 +371,7 @@ function renderMaturation(){
     if(aLast>=0&&aLast<2&&pa7!=null){
       const pred=[null,null,null]; pred[aLast]=[a0,a3,a7][aLast]; if(a3==null)pred[1]=pa3; pred[2]=pa7;
       series.push({name:nmA,type:'line',data:pred,connectNulls:true,smooth:.3,symbol:'emptyCircle',symbolSize:8,
-        lineStyle:{width:4,color:SERIES.adjSpend,type:'dashed'},itemStyle:{color:SERIES.adjSpend},z:6});
+        lineStyle:{width:4,color:avgCol,type:'dashed'},itemStyle:{color:avgCol},z:6});
     }
   }
   attachBreakLine(series);
