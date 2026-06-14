@@ -10,97 +10,97 @@
       "ios",
       "安卓"
     ],
-    "updated": "2026-06-13T05:20:57.466143+00:00"
+    "updated": "2026-06-14T05:49:53.035195+00:00"
   },
   "cumulative": {
     "meta_spend": 118013.61,
     "meta_roas": 1.2205,
-    "adjust_spend": 115652.14,
-    "d0_roas": 0.3951,
-    "d3_roas": 0.7365,
-    "d7_roas": 0.9339
+    "adjust_spend": 137263.87,
+    "d0_roas": 0.3696,
+    "d3_roas": 0.7049,
+    "d7_roas": 0.9017
   },
   "totals": [
     {
       "date": "2026-06-09",
       "meta_spend": 5480.67,
       "meta_roas": 1.4631,
-      "adjust_spend": 5478.73,
+      "adjust_spend": 5480.69,
       "d0_roas": 0.2762,
-      "d3_roas": null,
+      "d3_roas": 0.5186,
       "d7_roas": null
     },
     {
       "date": "2026-06-08",
       "meta_spend": 5720.05,
       "meta_roas": 1.7293,
-      "adjust_spend": 5719.38,
+      "adjust_spend": 5718.36,
       "d0_roas": 0.3084,
-      "d3_roas": null,
+      "d3_roas": 0.5438,
       "d7_roas": null
     },
     {
       "date": "2026-06-07",
       "meta_spend": 7874.41,
       "meta_roas": 1.4367,
-      "adjust_spend": 7874.41,
-      "d0_roas": 0.3574,
-      "d3_roas": 0.5522,
+      "adjust_spend": 7873.11,
+      "d0_roas": 0.3462,
+      "d3_roas": 0.5995,
       "d7_roas": null
     },
     {
       "date": "2026-06-06",
       "meta_spend": 7269.13,
       "meta_roas": 1.8017,
-      "adjust_spend": 7269.13,
-      "d0_roas": 0.4869,
-      "d3_roas": 0.7646,
-      "d7_roas": null
+      "adjust_spend": 7268.07,
+      "d0_roas": 0.4536,
+      "d3_roas": 0.666,
+      "d7_roas": 0.8593
     },
     {
       "date": "2026-06-05",
       "meta_spend": 8845.21,
       "meta_roas": 1.5784,
-      "adjust_spend": 8845.67,
-      "d0_roas": 0.295,
-      "d3_roas": 0.5786,
-      "d7_roas": null
+      "adjust_spend": 8844.11,
+      "d0_roas": 0.2858,
+      "d3_roas": 0.562,
+      "d7_roas": 0.7425
     },
     {
       "date": "2026-06-04",
       "meta_spend": 12145.21,
       "meta_roas": 1.1801,
-      "adjust_spend": 12145.21,
-      "d0_roas": 0.283,
-      "d3_roas": 0.642,
-      "d7_roas": null
+      "adjust_spend": 12144.75,
+      "d0_roas": 0.2776,
+      "d3_roas": 0.5906,
+      "d7_roas": 0.8185
     },
     {
       "date": "2026-06-03",
       "meta_spend": 14840.14,
       "meta_roas": 0.9539,
       "adjust_spend": 14377.84,
-      "d0_roas": 0.2928,
-      "d3_roas": 0.6259,
-      "d7_roas": null
+      "d0_roas": 0.268,
+      "d3_roas": 0.5932,
+      "d7_roas": 0.7453
     },
     {
       "date": "2026-06-02",
       "meta_spend": 13771.87,
       "meta_roas": 0.8406,
-      "adjust_spend": 13472.21,
-      "d0_roas": 0.2709,
-      "d3_roas": 0.5078,
-      "d7_roas": 0.7289
+      "adjust_spend": 13469.99,
+      "d0_roas": 0.2659,
+      "d3_roas": 0.5006,
+      "d7_roas": 0.7216
     },
     {
       "date": "2026-06-01",
       "meta_spend": 12245.71,
       "meta_roas": 1.3024,
-      "adjust_spend": 12182.26,
-      "d0_roas": 0.3493,
-      "d3_roas": 0.6323,
-      "d7_roas": 0.7566
+      "adjust_spend": 12180.16,
+      "d0_roas": 0.3457,
+      "d3_roas": 0.6263,
+      "d7_roas": 0.8398
     },
     {
       "date": "2026-05-31",
@@ -164,9 +164,9 @@
       "device": "安卓",
       "meta_spend": 1661.16,
       "meta_roas": 1.5718,
-      "adjust_spend": 1660.94,
-      "d0_roas": 0.3731,
-      "d3_roas": null,
+      "adjust_spend": 1660.98,
+      "d0_roas": 0.3616,
+      "d3_roas": 0.7568,
       "d7_roas": null
     },
     {
@@ -197,9 +197,9 @@
       "device": "安卓",
       "meta_spend": 1580.75,
       "meta_roas": 1.7014,
-      "adjust_spend": 1580.71,
-      "d0_roas": 0.2464,
-      "d3_roas": null,
+      "adjust_spend": 1579.57,
+      "d0_roas": 0.1965,
+      "d3_roas": 0.4162,
       "d7_roas": null
     },
     {
@@ -230,9 +230,9 @@
       "device": "安卓",
       "meta_spend": 2260.43,
       "meta_roas": 1.5585,
-      "adjust_spend": 2260.43,
-      "d0_roas": 0.4502,
-      "d3_roas": 0.7008,
+      "adjust_spend": 2259.69,
+      "d0_roas": 0.4468,
+      "d3_roas": 0.7319,
       "d7_roas": null
     },
     {
@@ -263,10 +263,10 @@
       "device": "安卓",
       "meta_spend": 2152.52,
       "meta_roas": 1.8013,
-      "adjust_spend": 2152.52,
-      "d0_roas": 0.4055,
-      "d3_roas": 0.6414,
-      "d7_roas": null
+      "adjust_spend": 2151.86,
+      "d0_roas": 0.3997,
+      "d3_roas": 0.6308,
+      "d7_roas": 0.8566
     },
     {
       "date": "2026-06-06",
@@ -296,10 +296,10 @@
       "device": "安卓",
       "meta_spend": 2413.17,
       "meta_roas": 1.4316,
-      "adjust_spend": 2413.19,
-      "d0_roas": 0.3357,
-      "d3_roas": 0.5872,
-      "d7_roas": null
+      "adjust_spend": 2413.15,
+      "d0_roas": 0.3291,
+      "d3_roas": 0.5795,
+      "d7_roas": 1.0181
     },
     {
       "date": "2026-06-05",
@@ -331,8 +331,8 @@
       "meta_roas": 1.4275,
       "adjust_spend": 3046.58,
       "d0_roas": 0.4697,
-      "d3_roas": 0.8919,
-      "d7_roas": null
+      "d3_roas": 0.8898,
+      "d7_roas": 1.0938
     },
     {
       "date": "2026-06-04",
@@ -363,9 +363,9 @@
       "meta_spend": 3848.92,
       "meta_roas": 1.1462,
       "adjust_spend": 3804.33,
-      "d0_roas": 0.5055,
-      "d3_roas": 0.8981,
-      "d7_roas": null
+      "d0_roas": 0.4583,
+      "d3_roas": 0.8366,
+      "d7_roas": 1.1078
     },
     {
       "date": "2026-06-03",
@@ -397,8 +397,8 @@
       "meta_roas": 0.9229,
       "adjust_spend": 2948.33,
       "d0_roas": 0.524,
-      "d3_roas": 0.9573,
-      "d7_roas": 1.4243
+      "d3_roas": 0.9287,
+      "d7_roas": 1.3958
     },
     {
       "date": "2026-06-02",
@@ -429,9 +429,9 @@
       "meta_spend": 2806.72,
       "meta_roas": 1.4831,
       "adjust_spend": 2762.61,
-      "d0_roas": 0.329,
-      "d3_roas": 0.7611,
-      "d7_roas": 1.074
+      "d0_roas": 0.313,
+      "d3_roas": 0.7341,
+      "d7_roas": 1.0286
     },
     {
       "date": "2026-06-01",
