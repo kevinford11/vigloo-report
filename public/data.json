@@ -1,7 +1,7 @@
 {
   "meta": {
     "date_min": "2026-05-26",
-    "date_max": "2026-06-09",
+    "date_max": "2026-06-13",
     "countries": [
       "台湾",
       "韩国"
@@ -10,11 +10,11 @@
       "ios",
       "安卓"
     ],
-    "updated": "2026-06-14T05:49:53.035195+00:00"
+    "updated": "2026-06-15T06:25:01.383727+00:00"
   },
   "cumulative": {
-    "meta_spend": 118013.61,
-    "meta_roas": 1.2205,
+    "meta_spend": 139664.79,
+    "meta_roas": 1.1941,
     "adjust_spend": 137263.87,
     "d0_roas": 0.3696,
     "d3_roas": 0.7049,
@@ -22,9 +22,45 @@
   },
   "totals": [
     {
+      "date": "2026-06-13",
+      "meta_spend": 5559.8,
+      "meta_roas": 0.9425,
+      "adjust_spend": 5554.3,
+      "d0_roas": 0.2686,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-12",
+      "meta_spend": 5174.99,
+      "meta_roas": 5174.99,
+      "adjust_spend": 5169.85,
+      "d0_roas": 0.23,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-11",
+      "meta_spend": 5523.34,
+      "meta_roas": 1.124,
+      "adjust_spend": 5522.54,
+      "d0_roas": 0.2201,
+      "d3_roas": 0.3782,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-10",
+      "meta_spend": 5391.94,
+      "meta_roas": 1.2382,
+      "adjust_spend": 5391.34,
+      "d0_roas": 0.4442,
+      "d3_roas": 1.1914,
+      "d7_roas": null
+    },
+    {
       "date": "2026-06-09",
-      "meta_spend": 5480.67,
-      "meta_roas": 1.4631,
+      "meta_spend": 5481.78,
+      "meta_roas": 1.4628,
       "adjust_spend": 5480.69,
       "d0_roas": 0.2762,
       "d3_roas": 0.5186,
@@ -159,6 +195,138 @@
   ],
   "records": [
     {
+      "date": "2026-06-13",
+      "country": "韩国",
+      "device": "安卓",
+      "meta_spend": 1454.0,
+      "meta_roas": 0.9583,
+      "adjust_spend": 1453.67,
+      "d0_roas": 0.4447,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-13",
+      "country": "台湾",
+      "device": "安卓",
+      "meta_spend": 2589.11,
+      "meta_roas": 0.9814,
+      "adjust_spend": 2587.13,
+      "d0_roas": 0.2182,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-13",
+      "country": "台湾",
+      "device": "ios",
+      "meta_spend": 1516.69,
+      "meta_roas": 0.8611,
+      "adjust_spend": 1514.35,
+      "d0_roas": 0.2339,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-12",
+      "country": "韩国",
+      "device": "安卓",
+      "meta_spend": 1206.93,
+      "meta_roas": 1.1287,
+      "adjust_spend": 1206.34,
+      "d0_roas": 0.1825,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-12",
+      "country": "台湾",
+      "device": "安卓",
+      "meta_spend": 2647.58,
+      "meta_roas": 0.8123,
+      "adjust_spend": 2645.02,
+      "d0_roas": 0.267,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-12",
+      "country": "台湾",
+      "device": "ios",
+      "meta_spend": 1320.48,
+      "meta_roas": 0.8377,
+      "adjust_spend": 1318.49,
+      "d0_roas": 0.1992,
+      "d3_roas": null,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-11",
+      "country": "韩国",
+      "device": "安卓",
+      "meta_spend": 1323.58,
+      "meta_roas": 1.6847,
+      "adjust_spend": 1323.35,
+      "d0_roas": 0.3949,
+      "d3_roas": 0.6922,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-11",
+      "country": "台湾",
+      "device": "安卓",
+      "meta_spend": 2751.26,
+      "meta_roas": 2751.26,
+      "adjust_spend": 2750.74,
+      "d0_roas": 0.1505,
+      "d3_roas": 0.2652,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-11",
+      "country": "台湾",
+      "device": "ios",
+      "meta_spend": 1448.5,
+      "meta_roas": 1.263,
+      "adjust_spend": 1448.45,
+      "d0_roas": 0.1927,
+      "d3_roas": 0.3065,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-10",
+      "country": "韩国",
+      "device": "安卓",
+      "meta_spend": 1397.29,
+      "meta_roas": 1.8176,
+      "adjust_spend": 1397.27,
+      "d0_roas": 1.2001,
+      "d3_roas": 3.4667,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-10",
+      "country": "台湾",
+      "device": "安卓",
+      "meta_spend": 2997.38,
+      "meta_roas": 0.9135,
+      "adjust_spend": 2997.33,
+      "d0_roas": 0.1779,
+      "d3_roas": 0.3511,
+      "d7_roas": null
+    },
+    {
+      "date": "2026-06-10",
+      "country": "台湾",
+      "device": "ios",
+      "meta_spend": 997.27,
+      "meta_roas": 1.4023,
+      "adjust_spend": 996.74,
+      "d0_roas": 0.1855,
+      "d3_roas": 0.5292,
+      "d7_roas": null
+    },
+    {
       "date": "2026-06-09",
       "country": "韩国",
       "device": "安卓",
@@ -175,9 +343,9 @@
       "device": "安卓",
       "meta_spend": 2617.59,
       "meta_roas": 1.1226,
-      "adjust_spend": 2616.04,
-      "d0_roas": 0.2617,
-      "d3_roas": null,
+      "adjust_spend": 2617.77,
+      "d0_roas": 0.2504,
+      "d3_roas": 0.4265,
       "d7_roas": null
     },
     {
@@ -188,7 +356,7 @@
       "meta_roas": 2.0543,
       "adjust_spend": 1201.75,
       "d0_roas": 0.2143,
-      "d3_roas": null,
+      "d3_roas": 0.39,
       "d7_roas": null
     },
     {
@@ -208,9 +376,9 @@
       "device": "安卓",
       "meta_spend": 2908.32,
       "meta_roas": 1.611,
-      "adjust_spend": 2907.72,
-      "d0_roas": 0.3074,
-      "d3_roas": null,
+      "adjust_spend": 2908.08,
+      "d0_roas": 0.2857,
+      "d3_roas": 0.5002,
       "d7_roas": null
     },
     {
@@ -221,7 +389,7 @@
       "meta_roas": 2.0445,
       "adjust_spend": 1230.95,
       "d0_roas": 0.3904,
-      "d3_roas": null,
+      "d3_roas": 0.8103,
       "d7_roas": null
     },
     {
@@ -241,9 +409,9 @@
       "device": "安卓",
       "meta_spend": 3941.29,
       "meta_roas": 1.2731,
-      "adjust_spend": 3941.29,
-      "d0_roas": 0.3596,
-      "d3_roas": 0.5434,
+      "adjust_spend": 3940.73,
+      "d0_roas": 0.3399,
+      "d3_roas": 0.5762,
       "d7_roas": null
     },
     {
@@ -254,7 +422,7 @@
       "meta_roas": 1.6576,
       "adjust_spend": 1672.69,
       "d0_roas": 0.2268,
-      "d3_roas": 0.4546,
+      "d3_roas": 0.4753,
       "d7_roas": null
     },
     {
@@ -274,10 +442,10 @@
       "device": "安卓",
       "meta_spend": 3557.7,
       "meta_roas": 1.6718,
-      "adjust_spend": 3553.04,
-      "d0_roas": 0.5612,
-      "d3_roas": 0.7559,
-      "d7_roas": null
+      "adjust_spend": 3557.68,
+      "d0_roas": 0.5444,
+      "d3_roas": 0.7207,
+      "d7_roas": 0.9397
     },
     {
       "date": "2026-06-06",
@@ -287,8 +455,8 @@
       "meta_roas": 2.0985,
       "adjust_spend": 1558.78,
       "d0_roas": 0.43,
-      "d3_roas": 0.9545,
-      "d7_roas": null
+      "d3_roas": 0.59,
+      "d7_roas": 0.6798
     },
     {
       "date": "2026-06-05",
@@ -307,10 +475,10 @@
       "device": "安卓",
       "meta_spend": 4317.48,
       "meta_roas": 1.5224,
-      "adjust_spend": 4317.9,
-      "d0_roas": 0.278,
-      "d3_roas": 0.4748,
-      "d7_roas": null
+      "adjust_spend": 4317.28,
+      "d0_roas": 0.2673,
+      "d3_roas": 0.458,
+      "d7_roas": 0.5473
     },
     {
       "date": "2026-06-05",
@@ -319,9 +487,9 @@
       "meta_spend": 2114.56,
       "meta_roas": 1.8603,
       "adjust_spend": 2114.05,
-      "d0_roas": 0.2834,
-      "d3_roas": 0.7807,
-      "d7_roas": null
+      "d0_roas": 0.274,
+      "d3_roas": 0.7544,
+      "d7_roas": 0.8266
     },
     {
       "date": "2026-06-04",
@@ -342,8 +510,8 @@
       "meta_roas": 1.0869,
       "adjust_spend": 5524.26,
       "d0_roas": 0.191,
-      "d3_roas": 0.4043,
-      "d7_roas": null
+      "d3_roas": 0.3911,
+      "d7_roas": 0.6437
     },
     {
       "date": "2026-06-04",
@@ -353,8 +521,8 @@
       "meta_roas": 1.1131,
       "adjust_spend": 3574.37,
       "d0_roas": 0.266,
-      "d3_roas": 0.7965,
-      "d7_roas": null
+      "d3_roas": 0.6439,
+      "d7_roas": 0.8539
     },
     {
       "date": "2026-06-03",
@@ -374,9 +542,9 @@
       "meta_spend": 6645.64,
       "meta_roas": 0.9776,
       "adjust_spend": 6221.46,
-      "d0_roas": 0.2022,
-      "d3_roas": 0.6287,
-      "d7_roas": null
+      "d0_roas": 0.1862,
+      "d3_roas": 0.6067,
+      "d7_roas": 0.7499
     },
     {
       "date": "2026-06-03",
@@ -386,8 +554,8 @@
       "meta_roas": 0.7472,
       "adjust_spend": 4345.58,
       "d0_roas": 0.2366,
-      "d3_roas": 0.3837,
-      "d7_roas": null
+      "d3_roas": 0.3608,
+      "d7_roas": 0.4214
     },
     {
       "date": "2026-06-02",
@@ -408,8 +576,8 @@
       "meta_roas": 0.762,
       "adjust_spend": 6293.41,
       "d0_roas": 0.1947,
-      "d3_roas": 0.3791,
-      "d7_roas": 0.5614
+      "d3_roas": 0.3771,
+      "d7_roas": 0.5592
     },
     {
       "date": "2026-06-02",
