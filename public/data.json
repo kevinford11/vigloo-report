@@ -10,15 +10,15 @@
       "ios",
       "安卓"
     ],
-    "updated": "2026-06-23T05:01:10.734624+00:00"
+    "updated": "2026-06-24T05:02:16.145866+00:00"
   },
   "cumulative": {
     "meta_spend": 162467.89,
     "meta_roas": 1.1947,
-    "adjust_spend": 160042.19,
-    "d0_roas": 0.3554,
-    "d3_roas": 0.677,
-    "d7_roas": 0.892
+    "adjust_spend": 160348.48,
+    "d0_roas": 0.3551,
+    "d3_roas": 0.6813,
+    "d7_roas": 0.9051
   },
   "totals": [
     {
